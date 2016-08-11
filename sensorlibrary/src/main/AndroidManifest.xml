@@ -1,0 +1,36 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="de.kit.sensorlibrary">
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <application
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:icon="@drawable/ic_launcher">
+        <service android:name=".sensor.locationsensor.LocationIntentServiceReceiver" />
+        <service android:name=".sensor.useractivitysensor.UserActivityRecognitionService" />
+        <service android:name=".sensor.appactivitysensor.AppActivityIntentService" />
+        <service android:name=".sensor.geofencingsensor.GeofenceIntentService" />
+        <service android:name=".sensor.timesensor.TimeAlarmIntentService" />
+        <service android:name=".sensor.timesensor.TimeAlarmDailyIntentService" />
+        <service
+            android:name="de.kit.sensorlibrary.sensor.notificationsensor.NotificationAccessService"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>
