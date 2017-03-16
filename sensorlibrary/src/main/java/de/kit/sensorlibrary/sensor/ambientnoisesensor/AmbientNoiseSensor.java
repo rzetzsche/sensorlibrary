@@ -1,26 +1,28 @@
 package de.kit.sensorlibrary.sensor.ambientnoisesensor;
 
+import android.Manifest;
 import android.content.Context;
 import android.media.MediaRecorder;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.kit.sensorlibrary.sensor.AbstractSensorImpl;
+import de.kit.sensorlibrary.sensor.AbstractSensorPermissionImpl;
 
 /**
  * Created by Robert on 05.02.2015.
  */
-public class AmbientNoiseSensor extends AbstractSensorImpl<AmbientNoiseChangedListener> {
+public class AmbientNoiseSensor extends AbstractSensorPermissionImpl<AmbientNoiseChangedListener> {
     private MediaRecorder recorder;
-    private Context context;
     private int updateTime;
     private int measurementCount;
     private AmbientNoiseMeasurement measurement;
 
     public AmbientNoiseSensor(Context context, int updateTime, int measurementCount) {
+        super(context);
         this.context = context;
         this.updateTime = updateTime;
         this.measurementCount = measurementCount;
@@ -34,8 +36,11 @@ public class AmbientNoiseSensor extends AbstractSensorImpl<AmbientNoiseChangedLi
     @Override
     public void openSensor() {
         super.openSensor();
-        initializeRecorder();
-        startAmbientNoiseMeasurement(updateTime, measurementCount);
+    }
+
+    @Override
+    public String[] getPermissions() {
+        return new String[]{Manifest.permission.RECORD_AUDIO};
     }
 
 
@@ -75,6 +80,17 @@ public class AmbientNoiseSensor extends AbstractSensorImpl<AmbientNoiseChangedLi
         test.execute();
     }
 
+    @Override
+    public void permissionGranted(boolean granted) {
+        if (granted) {
+            Log.e("TEST", "GRANTED");
+            initializeRecorder();
+            startAmbientNoiseMeasurement(updateTime, measurementCount);
+        } else {
+            Log.e("TEST", "NOT GRANTED");
+        }
+    }
+
 
     private class RecordAudioAsyncTask extends AsyncTask<Void, Void, Void> {
         private int updateTime;
@@ -91,7 +107,6 @@ public class AmbientNoiseSensor extends AbstractSensorImpl<AmbientNoiseChangedLi
             try {
                 recorder.prepare();
                 recorder.start();
-                recorder.getMaxAmplitude();
                 records = record(measurementCount, updateTime);
                 recorder.stop();
                 recorder.release();
