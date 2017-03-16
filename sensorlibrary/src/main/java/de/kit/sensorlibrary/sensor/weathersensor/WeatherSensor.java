@@ -28,10 +28,10 @@ import de.kit.sensorlibrary.sensor.locationsensor.LocationSensor;
 public class WeatherSensor extends AbstractSensorImpl<WeatherChangedListener> {
 
     public final static String IDENTIFIER = "weather";
-    //request API-Key from openweathermap.org
-    private static String API_KEY = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
     private static String URL = "http://api.openweathermap.org/data/2.5/weather?lat=%f&lon=%f&units=metrics&lang=de&APPID=%s";
     private static String TAG = WeatherSensor.class.getSimpleName();
+    //request API-Key from openweathermap.org
+    private String API_KEY = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
     private double temperature;
     private String condition;
     private double lastLatitude = Integer.MAX_VALUE;
@@ -44,9 +44,10 @@ public class WeatherSensor extends AbstractSensorImpl<WeatherChangedListener> {
      * @param locationSensor the needed location source
      * @param isAutoRefresh  if true, onLocationChange causes automatic refresh of weather (be careful for network traffic and battery use)
      */
-    public WeatherSensor(LocationSensor locationSensor, boolean isAutoRefresh) {
+    public WeatherSensor(LocationSensor locationSensor, String apiKey, boolean isAutoRefresh) {
         temperature = 0;
         condition = "";
+        API_KEY = apiKey;
         this.locationSensor = locationSensor;
         if (isAutoRefresh) {
             locationSensor.addValueChangedListener(new LocationChangedListener() {
