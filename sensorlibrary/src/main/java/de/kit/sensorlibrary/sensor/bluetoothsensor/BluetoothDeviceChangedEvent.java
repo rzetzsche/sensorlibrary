@@ -15,7 +15,7 @@ public class BluetoothDeviceChangedEvent extends ValueChangedEvent {
      *
      * @param source the object which fired the event.
      */
-    public BluetoothDeviceChangedEvent(BluetoothSensor source) {
+    BluetoothDeviceChangedEvent(BluetoothSensor source) {
         super(source);
     }
 

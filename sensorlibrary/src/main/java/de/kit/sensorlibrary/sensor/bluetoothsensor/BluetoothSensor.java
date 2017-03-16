@@ -1,5 +1,6 @@
 package de.kit.sensorlibrary.sensor.bluetoothsensor;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -10,25 +11,26 @@ import android.content.IntentFilter;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.kit.sensorlibrary.sensor.AbstractSensorImpl;
+import de.kit.sensorlibrary.permissions.PermissionUtil;
+import de.kit.sensorlibrary.sensor.AbstractSensorPermissionImpl;
 
 /**
  * Created by Robert on 29.01.2015.
  */
-public class BluetoothSensor extends AbstractSensorImpl<BluetoothDeviceChangedListener> implements BluetoothTimeInterface {
+public class BluetoothSensor extends AbstractSensorPermissionImpl<BluetoothDeviceChangedListener> implements BluetoothTimeInterface {
     public static final String IDENTIFIER = "bluetooth";
     private final IntentFilter filter;
     private final BluetoothAdapter mBluetoothAdapter;
     private final BluetoothDiscoveredDevicesReceiver bluetoothDiscoveredDevicesReceiver;
     private List<BluetoothDevice> deviceList;
-    private Context context;
+
     /**
      * Initialize Sensor and start one time a Discovery
      *
      * @param context Context to initialize the Sensor
      */
     public BluetoothSensor(Context context) {
-        this.context = context;
+        super(context);
         deviceList = new ArrayList<BluetoothDevice>();
         filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_FOUND);
@@ -84,7 +86,27 @@ public class BluetoothSensor extends AbstractSensorImpl<BluetoothDeviceChangedLi
      */
     public void openSensor() {
         super.openSensor();
-        context.registerReceiver(bluetoothDiscoveredDevicesReceiver, filter);
+    }
+
+    @Override
+    public void permissionGranted(boolean granted) {
+        super.permissionGranted(granted);
+        boolean locationEnabled = PermissionUtil.isLocationEnabled(context);
+        if (!locationEnabled) {
+            setError(LOCATION_NOT_ENABLED);
+        }
+        if (!mBluetoothAdapter.isEnabled()) {
+            mBluetoothAdapter.enable();
+        }
+        if (granted && locationEnabled) {
+            context.registerReceiver(bluetoothDiscoveredDevicesReceiver, filter);
+            startDiscovery();
+        }
+    }
+
+    @Override
+    public String[] getPermissions() {
+        return new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
     }
 
     public List<BluetoothDevice> getDeviceList() {

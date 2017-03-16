@@ -1,26 +1,27 @@
-package de.kit.sensorlibrary.sensor.ambientlightsensor;
+package de.kit.sensorlibrary.sensor.speechsensor;
 
 import de.kit.sensorlibrary.sensor.ValueChangedEvent;
 
 /**
  * Created by Robert on 11.05.2015.
  */
-public class LightChangedEvent extends ValueChangedEvent {
+public class SpeechEvent extends ValueChangedEvent {
     /**
      * Constructs a new instance of this class.
      *
      * @param source the object which fired the event.
      */
-    LightChangedEvent(LightSensor source) {
+    SpeechEvent(SpeechSensor source) {
         super(source);
     }
 
-    public float getLumen() {
-        return ((LightSensor) source).getSensorValue();
+    public boolean isSpeech() {
+        return ((SpeechSensor) source).isSpeech();
     }
 
     @Override
     public String toString() {
-        return "Lumen: " + getLumen();
+        return " isSpeech: " + isSpeech();
     }
+
 }

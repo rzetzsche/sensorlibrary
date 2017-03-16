@@ -1,5 +1,6 @@
 package de.kit.sensorlibrary.sensor.locationsensor;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
@@ -8,31 +9,26 @@ import android.os.Messenger;
 import android.util.Log;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import de.kit.sensorlibrary.sensor.AbstractSensorImpl;
+import de.kit.sensorlibrary.permissions.PermissionUtil;
+import de.kit.sensorlibrary.sensor.AbstractSensorPermissionImpl;
 
-public class LocationSensor extends AbstractSensorImpl<LocationChangedListener> implements LocationAccessInterface {
+public class LocationSensor extends AbstractSensorPermissionImpl<LocationChangedListener> implements LocationAccessInterface {
 
     public static final String IDENTIFIER = "location";
     private static String TAG = LocationSensor.class.getSimpleName();
-    private Context context;
     private double longitude = 0;
     private double latitude = 0;
     private double lastLongitude = 0;
     private double lastLatitude = 0;
     private String address = "";
+    private long refreshTime;
 
     public LocationSensor(Context context, long refreshTime) {
-        this.context = context;
-        LocationHandler handler = new LocationHandler(this, LocationIntentServiceReceiver.BUNDLE_IDENTIFIER);
-        Intent i = new Intent(context, LocationIntentServiceReceiver.class);
-        i.putExtra(LocationIntentServiceReceiver.MESSENGER_IDENTIFIER, new Messenger(
-                handler));
-        i.putExtra("refreshTime", refreshTime);
-        context.startService(i);
+        super(context);
+        this.refreshTime = refreshTime;
     }
 
     @Override
@@ -48,6 +44,23 @@ public class LocationSensor extends AbstractSensorImpl<LocationChangedListener> 
             }
         }
 
+    }
+
+    @Override
+    public void permissionGranted(boolean granted) {
+        super.permissionGranted(granted);
+        super.permissionGranted(granted);
+        boolean locationEnabled = PermissionUtil.isLocationEnabled(context);
+        if (!locationEnabled) {
+            setError(LOCATION_NOT_ENABLED);
+        }
+        if (granted && locationEnabled) {
+            LocationHandler handler = new LocationHandler(this, LocationIntentServiceReceiver.BUNDLE_IDENTIFIER);
+            Intent i = new Intent(context, LocationIntentServiceReceiver.class);
+            i.putExtra(LocationIntentServiceReceiver.MESSENGER_IDENTIFIER, new Messenger(handler));
+            i.putExtra("refreshTime", refreshTime);
+            context.startService(i);
+        }
     }
 
     public String getAddress() {
@@ -99,4 +112,8 @@ public class LocationSensor extends AbstractSensorImpl<LocationChangedListener> 
         return new String[]{"latitude", "longitude", "address"};
     }
 
+    @Override
+    public String[] getPermissions() {
+        return new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+    }
 }
