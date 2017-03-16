@@ -6,9 +6,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import de.kit.sensorlibrary.sensor.AbstractSensorImpl;
 
 /**
@@ -16,16 +13,15 @@ import de.kit.sensorlibrary.sensor.AbstractSensorImpl;
  */
 public class AccelerometerSensor extends AbstractSensorImpl<AccelerometerSensorChangedListener> {
     public static final String IDENTIFIER = "accelerometer";
+    //Time between updates 1s
+    private static int SENSOR_DELAY = 1000;
     private AccelerometerListener accelerometerListener;
     private SensorManager sensorManager;
-
     private float x = Float.NaN;
     private float y = Float.NaN;
     private float z = Float.NaN;
     private float sensorValue = Float.NaN;
     private int updateTime;
-    //Time between updates 1s
-    private static int SENSOR_DELAY = 1000;
 
 
     public AccelerometerSensor(Context context, int updateTime) {
@@ -39,8 +35,8 @@ public class AccelerometerSensor extends AbstractSensorImpl<AccelerometerSensorC
     @Override
     public void openSensor() {
         super.openSensor();
-        sensorManager.registerListener(accelerometerListener, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                SENSOR_DELAY);
+        sensorManager.registerListener(accelerometerListener
+                , sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SENSOR_DELAY);
     }
 
     public float getX() {
@@ -105,7 +101,8 @@ public class AccelerometerSensor extends AbstractSensorImpl<AccelerometerSensorC
             float x = event.values[0];
             float y = event.values[1];
             float z = event.values[2];
-            float sensorValue = ((x * x + y * y + z * z) / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH));
+            float sensorValue = ((x * x + y * y + z * z) /
+                    (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH));
             if ((actualTime - this.lastUpdate) > updateTime) {
                 if (AccelerometerSensor.this.sensorValue != sensorValue) {
                     AccelerometerSensor.this.x = x;
@@ -113,7 +110,8 @@ public class AccelerometerSensor extends AbstractSensorImpl<AccelerometerSensorC
                     AccelerometerSensor.this.z = z;
                     AccelerometerSensor.this.sensorValue = sensorValue;
 
-                    AccelerometerChangedEvent accelerometerChangedEvent = new AccelerometerChangedEvent(AccelerometerSensor.this);
+                    AccelerometerChangedEvent accelerometerChangedEvent
+                            = new AccelerometerChangedEvent(AccelerometerSensor.this);
                     for (AccelerometerSensorChangedListener listener : listeners) {
                         listener.onValueChanged(accelerometerChangedEvent);
                     }
