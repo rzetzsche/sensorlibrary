@@ -15,8 +15,8 @@
 
     <application
         android:allowBackup="true"
-        android:label="@string/app_name"
-        android:icon="@drawable/ic_launcher">
+        android:label="@string/app_name">
+
         <service android:name=".sensor.locationsensor.LocationIntentServiceReceiver" />
         <service android:name=".sensor.useractivitysensor.UserActivityRecognitionService" />
         <service android:name=".sensor.appactivitysensor.AppActivityIntentService" />
