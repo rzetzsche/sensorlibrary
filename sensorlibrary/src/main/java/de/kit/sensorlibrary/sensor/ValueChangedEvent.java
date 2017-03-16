@@ -5,7 +5,7 @@ import java.util.EventObject;
 /**
  * Created by Robert on 11.05.2015.
  */
-public abstract class ValueChangedEvent extends EventObject{
+public abstract class ValueChangedEvent extends EventObject {
     /**
      * Constructs a new instance of this class.
      *
@@ -14,4 +14,5 @@ public abstract class ValueChangedEvent extends EventObject{
     public ValueChangedEvent(Object source) {
         super(source);
     }
+
 }
