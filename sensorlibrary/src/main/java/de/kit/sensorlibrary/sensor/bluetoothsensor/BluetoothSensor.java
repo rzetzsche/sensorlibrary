@@ -19,7 +19,6 @@ import de.kit.sensorlibrary.sensor.AbstractSensorPermissionImpl;
  */
 public class BluetoothSensor extends AbstractSensorPermissionImpl<BluetoothDeviceChangedListener> implements BluetoothTimeInterface {
     public static final String IDENTIFIER = "bluetooth";
-    private static final int LOCATION_NOT_ENABLED = 1;
     private final IntentFilter filter;
     private final BluetoothAdapter mBluetoothAdapter;
     private final BluetoothDiscoveredDevicesReceiver bluetoothDiscoveredDevicesReceiver;
@@ -92,12 +91,14 @@ public class BluetoothSensor extends AbstractSensorPermissionImpl<BluetoothDevic
     @Override
     public void permissionGranted(boolean granted) {
         super.permissionGranted(granted);
+        boolean locationEnabled = PermissionUtil.isLocationEnabled(context);
+        if (!locationEnabled) {
+            setError(LOCATION_NOT_ENABLED);
+        }
         if (!mBluetoothAdapter.isEnabled()) {
             mBluetoothAdapter.enable();
         }
-        if (!PermissionUtil.isLocationEnabled(context)) {
-            setError(LOCATION_NOT_ENABLED);
-        } else {
+        if (granted && locationEnabled) {
             context.registerReceiver(bluetoothDiscoveredDevicesReceiver, filter);
             startDiscovery();
         }

@@ -1,5 +1,6 @@
 package de.kit.sensorlibrary.sensor.geofencingsensor;
 
+import android.Manifest;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,13 +18,15 @@ import com.google.android.gms.location.LocationServices;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.kit.sensorlibrary.sensor.AbstractSensorImpl;
+import de.kit.sensorlibrary.permissions.PermissionUtil;
+import de.kit.sensorlibrary.sensor.AbstractSensorPermissionImpl;
 
 /**
  * Created by Robert on 04.02.2015.
  */
 
-public class GeofenceSensor extends AbstractSensorImpl<GeofenceChangedListener> implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
+@SuppressWarnings("MissingPermission")
+public class GeofenceSensor extends AbstractSensorPermissionImpl<GeofenceChangedListener> implements GoogleApiClient.OnConnectionFailedListener, GoogleApiClient.ConnectionCallbacks {
     public static final String IDENTIFIER = "geofence";
     private Context context;
     private GoogleApiClient mGoogleApiClient;
@@ -34,6 +37,7 @@ public class GeofenceSensor extends AbstractSensorImpl<GeofenceChangedListener> 
     private GeofenceBroadcastReceiver geofenceBroadcastReceiver;
 
     public GeofenceSensor(Context context) {
+        super(context);
         geofenceList = new ArrayList<Geofence>();
         this.context = context;
         intentFilter = new IntentFilter("de.kit.sensorlibrary.sensor.geofence");
@@ -79,13 +83,29 @@ public class GeofenceSensor extends AbstractSensorImpl<GeofenceChangedListener> 
     public void openSensor() {
         super.openSensor();
         createPendingIntent();
-        mGoogleApiClient = new GoogleApiClient.Builder(context)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-        mGoogleApiClient.connect();
-        context.registerReceiver(geofenceBroadcastReceiver, intentFilter);
+    }
+
+    @Override
+    public String[] getPermissions() {
+        return new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
+    }
+
+    @Override
+    public void permissionGranted(boolean granted) {
+        super.permissionGranted(granted);
+        boolean locationEnabled = PermissionUtil.isLocationEnabled(context);
+        if (!locationEnabled) {
+            setError(LOCATION_NOT_ENABLED);
+        }
+        if (granted && locationEnabled) {
+            mGoogleApiClient = new GoogleApiClient.Builder(context)
+                    .addApi(LocationServices.API)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .build();
+            mGoogleApiClient.connect();
+            context.registerReceiver(geofenceBroadcastReceiver, intentFilter);
+        }
     }
 
     @Override

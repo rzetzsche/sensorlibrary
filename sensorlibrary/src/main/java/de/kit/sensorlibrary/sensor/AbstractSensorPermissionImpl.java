@@ -14,6 +14,7 @@ import de.kit.sensorlibrary.permissions.PermissionHandler;
 
 public abstract class AbstractSensorPermissionImpl<T extends ValueChangedListener> extends AbstractSensorImpl<T> implements PermissionInterface {
     public static final int PERMISSIONS_NOT_GRANTED = 0;
+    public static final int LOCATION_NOT_ENABLED = 1;
     private final PermissionHandler handler;
     protected Context context;
     private ErrorCallback errorCallback;
