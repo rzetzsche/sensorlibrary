@@ -32,7 +32,9 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".permissions.PermissionActivity" />
+        <activity
+            android:name=".permissions.PermissionActivity"
+            android:theme="@style/Theme.NotVisible" />
     </application>
 
 </manifest>
