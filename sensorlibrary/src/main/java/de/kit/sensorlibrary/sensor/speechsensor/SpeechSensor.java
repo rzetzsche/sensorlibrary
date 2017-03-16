@@ -1,28 +1,26 @@
 package de.kit.sensorlibrary.sensor.speechsensor;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 
-import de.kit.sensorlibrary.sensor.AbstractSensorImpl;
+import de.kit.sensorlibrary.sensor.AbstractSensorPermissionImpl;
 
 /**
  * Created by Robert on 05.02.2015.
  */
-public class SpeechSensor extends AbstractSensorImpl<SpeechChangedListenver> {
-    private MediaRecorder recorder;
-    private Context context;
+public class SpeechSensor extends AbstractSensorPermissionImpl<SpeechChangedListener> {
     private int listeningTime;
     private int updateTime;
     private boolean isSpeech;
 
     public SpeechSensor(Context context, int listeningTime, int updateTime) {
-        this.context = context;
+        super(context);
         this.listeningTime = listeningTime;
         this.updateTime = updateTime;
     }
@@ -34,14 +32,24 @@ public class SpeechSensor extends AbstractSensorImpl<SpeechChangedListenver> {
     @Override
     public void openSensor() {
         super.openSensor();
-        initializeRecorder();
-        startSpeechRecorder(listeningTime, updateTime);
+    }
+
+    @Override
+    public void permissionGranted(boolean granted) {
+        super.permissionGranted(granted);
+        if (granted) {
+            startSpeechRecorder(listeningTime, updateTime);
+        }
+    }
+
+    @Override
+    public String[] getPermissions() {
+        return new String[]{Manifest.permission.RECORD_AUDIO};
     }
 
 
     @Override
     public void closeSensor() {
-        recorder.reset();
         super.closeSensor();
     }
 
@@ -53,18 +61,6 @@ public class SpeechSensor extends AbstractSensorImpl<SpeechChangedListenver> {
     @Override
     public String[] getLogColumns() {
         return new String[]{"isSpeech"};
-    }
-
-    private void initializeRecorder() {
-        try {
-            recorder = new MediaRecorder();
-            recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-            recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-            recorder.setOutputFile(context.getFilesDir() + "/test.ogg");
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        }
     }
 
 //    public void startSpeechRecorder() {
@@ -110,7 +106,7 @@ public class SpeechSensor extends AbstractSensorImpl<SpeechChangedListenver> {
         public void onFinish() {
             SpeechSensor.this.isSpeech = false;
             SpeechEvent speechEvent = new SpeechEvent(SpeechSensor.this);
-            for (SpeechChangedListenver listener : listeners) {
+            for (SpeechChangedListener listener : listeners) {
                 listener.onValueChanged(speechEvent);
             }
 
@@ -137,7 +133,7 @@ public class SpeechSensor extends AbstractSensorImpl<SpeechChangedListenver> {
         public void onBeginningOfSpeech() {
             SpeechSensor.this.isSpeech = true;
             SpeechEvent speechEvent = new SpeechEvent(SpeechSensor.this);
-            for (SpeechChangedListenver listener : listeners) {
+            for (SpeechChangedListener listener : listeners) {
                 listener.onValueChanged(speechEvent);
             }
             timer.cancel();
