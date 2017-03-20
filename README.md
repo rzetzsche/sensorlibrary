@@ -18,12 +18,12 @@ dependencies {
 # Usage
 
 ```
-        UserActivitySensor userActivitySensor = new UserActivitySensor(getApplicationContext(), 1000);
-        userActivitySensor.addValueChangedListener(new UserActivityChangedListener() {
-            @Override
-            public void onValueChanged(UserActivityChangedEvent event) {
-                Log.e("TEST", String.valueOf(event.getDetectedActivityAsString()));
-            }
-        });
-        userActivitySensor.openSensor();
+UserActivitySensor userActivitySensor = new UserActivitySensor(getApplicationContext(), 1000);
+userActivitySensor.addValueChangedListener(new UserActivityChangedListener() {
+ @Override
+ public void onValueChanged(UserActivityChangedEvent event) {
+    Log.e("TEST", String.valueOf(event.getDetectedActivityAsString()));
+ }
+});
+userActivitySensor.openSensor();
 ```
